@@ -1,6 +1,6 @@
 # Sổ thu chi
 
-**Tổng kết dư (tất cả các tháng): 29.554.996đ**
+**Tổng kết dư (tất cả các tháng): 26.568.996đ**
 
 ---
 
@@ -92,16 +92,19 @@
 - Thưởng giải chạy TCT: +1.000.000đ
 - Pay 1 phần tiền lương: +1.000.000đ
 - Phần lương cơ bản tháng 4: +7.474.760đ
+- 14/04 - Vợ chuyển: +5.000.000đ
 
-**Tổng thu 2026-04: 9.474.760đ**
+**Tổng thu 2026-04: 14.474.760đ**
 
 ### Chi
 - Chuyển anh Linh đầu tư CPU game AU/DB game Audition lần 2: -8.800.000đ
 - 06/04 - Chuyển vợ tiền cọc đất: -50.000.000đ
 - Đóng bảo hiểm FWD: -20.093.000đ
 - Vé bơi 30 buổi: -3.100.000đ
+- 12/04 - Nộp tiền bảo hiểm An Tâm Techcombank: -3.060.000đ
+- 14/04 - Tiền khám bệnh ĐH Y (3 triệu chụp cộng hưởng từ): -4.926.000đ
 
-**Tổng chi 2026-04: 81.993.000đ**
+**Tổng chi 2026-04: 89.979.000đ**
 
 ### Lãng phí
 - (chưa có)
@@ -109,4 +112,4 @@
 **Tổng lãng phí 2026-04: 0đ**
 
 ### Kết dư
-**Kết dư 2026-04: -72.518.240đ**
+**Kết dư 2026-04: -75.504.240đ**

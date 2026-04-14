@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Thu Chi</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {{
+      --bg: #0f172a;
+      --panel: #111827;
+      --card: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --blue: #38bdf8;
+      --purple: #a78bfa;
+      --border: rgba(148, 163, 184, 0.18);
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{ margin: 0; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(180deg, #0b1220 0%, #111827 100%); color: var(--text); }}
+    .wrap {{ max-width: 1280px; margin: 0 auto; padding: 24px; }}
+    h1 {{ margin: 0 0 8px; font-size: 32px; }}
+    .sub {{ color: var(--muted); margin-bottom: 24px; }}
+    .grid {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }}
+    .card {{ background: rgba(31, 41, 55, 0.9); border: 1px solid var(--border); border-radius: 18px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); backdrop-filter: blur(8px); }}
+    .label {{ color: var(--muted); font-size: 14px; margin-bottom: 8px; }}
+    .value {{ font-size: 28px; font-weight: 700; }}
+    .green {{ color: var(--green); }} .red {{ color: var(--red); }} .yellow {{ color: var(--yellow); }} .blue {{ color: var(--blue); }} .purple {{ color: var(--purple); }}
+    .charts {{ display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }}
+    .lower {{ display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; margin-bottom: 20px; }}
+    .table-wrap {{ overflow-x: auto; }}
+    table {{ width: 100%; border-collapse: collapse; }}
+    th, td {{ padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }}
+    th:first-child, td:first-child {{ text-align: left; }}
+    tr:last-child td {{ border-bottom: none; }}
+    select {{ width: 100%; background: #0f172a; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; }}
+    ul {{ margin: 0; padding-left: 18px; }}
+    li {{ margin-bottom: 8px; color: #dbe4ee; }}
+    .empty {{ color: var(--muted); font-style: italic; }}
+    .footer-note {{ color: var(--muted); font-size: 13px; margin-top: 12px; }}
+    @media (max-width: 1100px) {{ .grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .charts, .lower {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 640px) {{ .grid {{ grid-template-columns: 1fr; }} h1 {{ font-size: 24px; }} .value {{ font-size: 22px; }} }}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Dashboard thu chi hàng tháng</h1>
+    <div class="sub">Tự động sinh từ file <code>memory/notes/so_thu_chi.md</code></div>
+
+    <div class="grid">
+      <div class="card"><div class="label">Tổng kết dư</div><div class="value blue" id="overallBalance"></div></div>
+      <div class="card"><div class="label">Tổng thu</div><div class="value green" id="totalIncome"></div></div>
+      <div class="card"><div class="label">Tổng chi</div><div class="value red" id="totalExpense"></div></div>
+      <div class="card"><div class="label">Tổng lãng phí</div><div class="value yellow" id="totalWaste"></div></div>
+      <div class="card"><div class="label">Tháng gần nhất</div><div class="value purple" id="latestMonth"></div></div>
+    </div>
+
+    <div class="charts">
+      <div class="card">
+        <div class="label">So sánh thu, chi, kết dư theo tháng</div>
+        <canvas id="barChart" height="120"></canvas>
+      </div>
+      <div class="card">
+        <div class="label">Tỷ trọng chi theo tháng đang chọn</div>
+        <select id="monthSelect"></select>
+        <canvas id="pieChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="lower">
+      <div class="card table-wrap">
+        <div class="label">Bảng tổng hợp theo tháng</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Tháng</th>
+              <th>Thu</th>
+              <th>Chi</th>
+              <th>Lãng phí</th>
+              <th>Kết dư</th>
+            </tr>
+          </thead>
+          <tbody id="monthlyTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="label">Chi tiết các khoản của tháng đang chọn</div>
+        <div style="display:grid; grid-template-columns:1fr; gap:14px;">
+          <div>
+            <div class="label green">Thu</div>
+            <ul id="incomeList"></ul>
+          </div>
+          <div>
+            <div class="label red">Chi</div>
+            <ul id="expenseList"></ul>
+          </div>
+          <div>
+            <div class="label yellow">Lãng phí</div>
+            <ul id="wasteList"></ul>
+          </div>
+        </div>
+        <div class="footer-note">Mỗi khi sửa sổ thu chi, chạy lại script để cập nhật dashboard.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = {"summary": {"overallBalance": 26568996, "totalIncome": 318763996, "totalExpense": 292195000, "totalWaste": 0, "latestMonth": "2026-04"}, "months": [{"month": "2026-01", "incomeItems": [{"label": "Tiền chi cho CBNV nhân dịp 20 năm kỷ niệm sinh nhật công ty", "amount": 24125000}, {"label": "Tiền lương tháng 12 2025", "amount": 35167197}, {"label": "Hỗ trợ CBNV tiền đồng phục năm 2025", "amount": 5000000}], "expenseItems": [{"label": "Chi tiêu tháng 1", "amount": -18100000}, {"label": "Mua xe máy điện", "amount": -17388000}], "wasteItems": [], "incomeTotal": 64292197, "expenseTotal": 35488000, "wasteTotal": 0, "balance": 28804197}, {"month": "2026-02", "incomeItems": [{"label": "Lương tháng 2 năm 2026", "amount": 32486837}, {"label": "Lương bổ sung năm 2025", "amount": 79261967}], "expenseItems": [{"label": "Chi tiêu tháng 2", "amount": -11900000}, {"label": "Tiền chuyển vợ ngày 09/02", "amount": -60000000}, {"label": "Tiền chuyển vợ ngày 11/02", "amount": -25000000}], "wasteItems": [], "incomeTotal": 111748804, "expenseTotal": 96900000, "wasteTotal": 0, "balance": 14848804}, {"month": "2026-03", "incomeItems": [{"label": "Công tác phí TP.HCM đầu năm 2026", "amount": 1900000}, {"label": "Bán đĩa PS4", "amount": 1000000}, {"label": "Tiền ăn chiều", "amount": 850000}, {"label": "Tiền 8/3", "amount": 2000000}, {"label": "Tiền lương", "amount": 34917837}, {"label": "Tiền giải chạy TCT VTC", "amount": 500000}, {"label": "Tiền team building", "amount": 3000000}, {"label": "Tiền hội nghị người lao động", "amount": 2000000}, {"label": "ITC chi tiền", "amount": 5000000}, {"label": "ITC chi tiền", "amount": 1000000}, {"label": "Tiền nghỉ mát ITC 2026", "amount": 10000000}, {"label": "Tiền lương bổ sung quý I 2026", "amount": 31660000}, {"label": "Tiền lương chi lần 1 tháng 3/2026", "amount": 34420398}], "expenseItems": [{"label": "Chuyển vợ ngày 08/03", "amount": -30000000}, {"label": "Chuyển anh Linh đầu tư CPU game AU/DB game Audition", "amount": -3328000}, {"label": "Chi tiêu tháng 3", "amount": -16500000}, {"label": "Chuyển vợ ngày 28/03", "amount": -10000000}, {"label": "Chuyển vợ ngày 30/03", "amount": -10000000}], "wasteItems": [], "incomeTotal": 128248235, "expenseTotal": 69828000, "wasteTotal": 0, "balance": 58420235}, {"month": "2026-04", "incomeItems": [{"label": "Thưởng giải chạy TCT", "amount": 1000000}, {"label": "Pay 1 phần tiền lương", "amount": 1000000}, {"label": "Phần lương cơ bản tháng 4", "amount": 7474760}, {"label": "14/04 - Vợ chuyển", "amount": 5000000}], "expenseItems": [{"label": "Chuyển anh Linh đầu tư CPU game AU/DB game Audition lần 2", "amount": -8800000}, {"label": "06/04 - Chuyển vợ tiền cọc đất", "amount": -50000000}, {"label": "Đóng bảo hiểm FWD", "amount": -20093000}, {"label": "Vé bơi 30 buổi", "amount": -3100000}, {"label": "12/04 - Nộp tiền bảo hiểm An Tâm Techcombank", "amount": -3060000}, {"label": "14/04 - Tiền khám bệnh ĐH Y (3 triệu chụp cộng hưởng từ)", "amount": -4926000}], "wasteItems": [], "incomeTotal": 14474760, "expenseTotal": 89979000, "wasteTotal": 0, "balance": -75504240}]};
+
+    const formatVnd = (value) => new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+
+    document.getElementById('overallBalance').textContent = formatVnd(data.summary.overallBalance);
+    document.getElementById('totalIncome').textContent = formatVnd(data.summary.totalIncome);
+    document.getElementById('totalExpense').textContent = formatVnd(data.summary.totalExpense);
+    document.getElementById('totalWaste').textContent = formatVnd(data.summary.totalWaste);
+    document.getElementById('latestMonth').textContent = data.summary.latestMonth || '-';
+
+    const months = data.months;
+    const labels = months.map(m => m.month);
+    const income = months.map(m => m.incomeTotal);
+    const expense = months.map(m => m.expenseTotal);
+    const waste = months.map(m => m.wasteTotal);
+    const balance = months.map(m => m.balance);
+
+    const tableBody = document.getElementById('monthlyTableBody');
+    months.forEach((m) => {{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${{m.month}}</td>
+        <td class="green">${{formatVnd(m.incomeTotal)}}</td>
+        <td class="red">${{formatVnd(m.expenseTotal)}}</td>
+        <td class="yellow">${{formatVnd(m.wasteTotal)}}</td>
+        <td class="${{m.balance >= 0 ? 'blue' : 'red'}}">${{formatVnd(m.balance)}}</td>
+      `;
+      tableBody.appendChild(tr);
+    }});
+
+    new Chart(document.getElementById('barChart'), {{
+      type: 'bar',
+      data: {{
+        labels,
+        datasets: [
+          {{ label: 'Thu', data: income, backgroundColor: '#22c55e' }},
+          {{ label: 'Chi', data: expense, backgroundColor: '#ef4444' }},
+          {{ label: 'Lãng phí', data: waste, backgroundColor: '#f59e0b' }},
+          {{ label: 'Kết dư', data: balance, type: 'line', borderColor: '#38bdf8', backgroundColor: '#38bdf8', tension: 0.3 }}
+        ]
+      }},
+      options: {{
+        responsive: true,
+        plugins: {{
+          legend: {{ labels: {{ color: '#e5e7eb' }} }},
+          tooltip: {{ callbacks: {{ label: (ctx) => `${{ctx.dataset.label}}: ${{formatVnd(ctx.raw)}}` }} }}
+        }},
+        scales: {{
+          x: {{ ticks: {{ color: '#cbd5e1' }}, grid: {{ color: 'rgba(148,163,184,0.12)' }} }},
+          y: {{ ticks: {{ color: '#cbd5e1', callback: (value) => formatVnd(value) }}, grid: {{ color: 'rgba(148,163,184,0.12)' }} }}
+        }}
+      }}
+    }});
+
+    const monthSelect = document.getElementById('monthSelect');
+    months.forEach((m, index) => {{
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = m.month;
+      monthSelect.appendChild(option);
+    }});
+    monthSelect.value = String(Math.max(months.length - 1, 0));
+
+    let pieChart;
+    const renderList = (el, items, cls) => {{
+      el.innerHTML = '';
+      if (!items.length) {{
+        const li = document.createElement('li');
+        li.className = 'empty';
+        li.textContent = 'Chưa có';
+        el.appendChild(li);
+        return;
+      }}
+      items.forEach((item) => {{
+        const li = document.createElement('li');
+        li.className = cls;
+        li.textContent = `${{item.label}}: ${{formatVnd(item.amount)}}`;
+        el.appendChild(li);
+      }});
+    }};
+
+    const updateMonthDetail = (index) => {{
+      const month = months[index];
+      renderList(document.getElementById('incomeList'), month.incomeItems, 'green');
+      renderList(document.getElementById('expenseList'), month.expenseItems, 'red');
+      renderList(document.getElementById('wasteList'), month.wasteItems, 'yellow');
+
+      const expenseItems = month.expenseItems.length ? month.expenseItems : [{{ label: 'Chưa có chi tiêu', amount: 1 }}];
+      const pieData = {{
+        labels: expenseItems.map(i => i.label),
+        datasets: [{{
+          data: expenseItems.map(i => i.amount),
+          backgroundColor: ['#60a5fa', '#ef4444', '#f59e0b', '#22c55e', '#a78bfa', '#f472b6', '#34d399', '#f97316', '#2dd4bf', '#fb7185']
+        }}]
+      }};
+
+      if (pieChart) pieChart.destroy();
+      pieChart = new Chart(document.getElementById('pieChart'), {{
+        type: 'doughnut',
+        data: pieData,
+        options: {{
+          responsive: true,
+          plugins: {{
+            legend: {{ position: 'bottom', labels: {{ color: '#e5e7eb' }} }},
+            tooltip: {{ callbacks: {{ label: (ctx) => `${{ctx.label}}: ${{formatVnd(ctx.raw)}}` }} }}
+          }}
+        }}
+      }});
+    }};
+
+    monthSelect.addEventListener('change', (e) => updateMonthDetail(Number(e.target.value)));
+    updateMonthDetail(Number(monthSelect.value || 0));
+  </script>
+</body>
+</html>

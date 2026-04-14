@@ -1,0 +1,211 @@
+{
+  "summary": {
+    "overallBalance": 26568996,
+    "totalIncome": 318763996,
+    "totalExpense": 292195000,
+    "totalWaste": 0,
+    "latestMonth": "2026-04"
+  },
+  "months": [
+    {
+      "month": "2026-01",
+      "incomeItems": [
+        {
+          "label": "Tiền chi cho CBNV nhân dịp 20 năm kỷ niệm sinh nhật công ty",
+          "amount": 24125000
+        },
+        {
+          "label": "Tiền lương tháng 12 2025",
+          "amount": 35167197
+        },
+        {
+          "label": "Hỗ trợ CBNV tiền đồng phục năm 2025",
+          "amount": 5000000
+        }
+      ],
+      "expenseItems": [
+        {
+          "label": "Chi tiêu tháng 1",
+          "amount": -18100000
+        },
+        {
+          "label": "Mua xe máy điện",
+          "amount": -17388000
+        }
+      ],
+      "wasteItems": [],
+      "incomeTotal": 64292197,
+      "expenseTotal": 35488000,
+      "wasteTotal": 0,
+      "balance": 28804197
+    },
+    {
+      "month": "2026-02",
+      "incomeItems": [
+        {
+          "label": "Lương tháng 2 năm 2026",
+          "amount": 32486837
+        },
+        {
+          "label": "Lương bổ sung năm 2025",
+          "amount": 79261967
+        }
+      ],
+      "expenseItems": [
+        {
+          "label": "Chi tiêu tháng 2",
+          "amount": -11900000
+        },
+        {
+          "label": "Tiền chuyển vợ ngày 09/02",
+          "amount": -60000000
+        },
+        {
+          "label": "Tiền chuyển vợ ngày 11/02",
+          "amount": -25000000
+        }
+      ],
+      "wasteItems": [],
+      "incomeTotal": 111748804,
+      "expenseTotal": 96900000,
+      "wasteTotal": 0,
+      "balance": 14848804
+    },
+    {
+      "month": "2026-03",
+      "incomeItems": [
+        {
+          "label": "Công tác phí TP.HCM đầu năm 2026",
+          "amount": 1900000
+        },
+        {
+          "label": "Bán đĩa PS4",
+          "amount": 1000000
+        },
+        {
+          "label": "Tiền ăn chiều",
+          "amount": 850000
+        },
+        {
+          "label": "Tiền 8/3",
+          "amount": 2000000
+        },
+        {
+          "label": "Tiền lương",
+          "amount": 34917837
+        },
+        {
+          "label": "Tiền giải chạy TCT VTC",
+          "amount": 500000
+        },
+        {
+          "label": "Tiền team building",
+          "amount": 3000000
+        },
+        {
+          "label": "Tiền hội nghị người lao động",
+          "amount": 2000000
+        },
+        {
+          "label": "ITC chi tiền",
+          "amount": 5000000
+        },
+        {
+          "label": "ITC chi tiền",
+          "amount": 1000000
+        },
+        {
+          "label": "Tiền nghỉ mát ITC 2026",
+          "amount": 10000000
+        },
+        {
+          "label": "Tiền lương bổ sung quý I 2026",
+          "amount": 31660000
+        },
+        {
+          "label": "Tiền lương chi lần 1 tháng 3/2026",
+          "amount": 34420398
+        }
+      ],
+      "expenseItems": [
+        {
+          "label": "Chuyển vợ ngày 08/03",
+          "amount": -30000000
+        },
+        {
+          "label": "Chuyển anh Linh đầu tư CPU game AU/DB game Audition",
+          "amount": -3328000
+        },
+        {
+          "label": "Chi tiêu tháng 3",
+          "amount": -16500000
+        },
+        {
+          "label": "Chuyển vợ ngày 28/03",
+          "amount": -10000000
+        },
+        {
+          "label": "Chuyển vợ ngày 30/03",
+          "amount": -10000000
+        }
+      ],
+      "wasteItems": [],
+      "incomeTotal": 128248235,
+      "expenseTotal": 69828000,
+      "wasteTotal": 0,
+      "balance": 58420235
+    },
+    {
+      "month": "2026-04",
+      "incomeItems": [
+        {
+          "label": "Thưởng giải chạy TCT",
+          "amount": 1000000
+        },
+        {
+          "label": "Pay 1 phần tiền lương",
+          "amount": 1000000
+        },
+        {
+          "label": "Phần lương cơ bản tháng 4",
+          "amount": 7474760
+        },
+        {
+          "label": "14/04 - Vợ chuyển",
+          "amount": 5000000
+        }
+      ],
+      "expenseItems": [
+        {
+          "label": "Chuyển anh Linh đầu tư CPU game AU/DB game Audition lần 2",
+          "amount": -8800000
+        },
+        {
+          "label": "06/04 - Chuyển vợ tiền cọc đất",
+          "amount": -50000000
+        },
+        {
+          "label": "Đóng bảo hiểm FWD",
+          "amount": -20093000
+        },
+        {
+          "label": "Vé bơi 30 buổi",
+          "amount": -3100000
+        },
+        {
+          "label": "12/04 - Nộp tiền bảo hiểm An Tâm Techcombank",
+          "amount": -3060000
+        },
+        {
+          "label": "14/04 - Tiền khám bệnh ĐH Y (3 triệu chụp cộng hưởng từ)",
+          "amount": -4926000
+        }
+      ],
+      "wasteItems": [],
+      "incomeTotal": 14474760,
+      "expenseTotal": 89979000,
+      "wasteTotal": 0,
+      "balance": -75504240
+    }
+  ]
+}
