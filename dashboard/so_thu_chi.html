@@ -646,6 +646,84 @@ const CHART_COLORS = {
 };
 const PIE_PALETTE = ['#3b82f6','#22c55e','#f97316','#a855f7','#ef4444','#eab308','#14b8a6','#ec4899','#6366f1','#84cc16'];
 
+// ========== PHÂN NHÓM CHI TIÊU ==========
+const CHI_GROUPS = [
+  {
+    key: 'gia_dinh',
+    label: '👨‍👩‍👧 Gia đình',
+    color: '#3b82f6',
+    keywords: ['vợ', 'chồng', 'con', 'bố', 'mẹ', 'cha', 'ba', 'anh', 'chị', 'em', 'gia đình', 'chuyển vợ', 'chuyển cho vợ'],
+  },
+  {
+    key: 'sinh_hoat',
+    label: '🏠 Sinh hoạt',
+    color: '#22c55e',
+    keywords: ['chi tiêu', 'ăn', 'uống', 'điện', 'nước', 'nhà', 'xăng', 'gas', 'sinh hoạt', 'tiêu dùng', 'thực phẩm', 'chợ', 'siêu thị'],
+  },
+  {
+    key: 'mua_sam',
+    label: '🛒 Mua sắm',
+    color: '#f97316',
+    keywords: ['mua', 'sắm', 'xe', 'máy', 'điện thoại', 'laptop', 'máy tính', 'tivi', 'tủ lạnh', 'quần áo', 'giày', 'túi'],
+  },
+  {
+    key: 'dau_tu',
+    label: '💰 Đầu tư',
+    color: '#a855f7',
+    keywords: ['đầu tư', 'kinh doanh', 'cpu', 'game', 'server', 'vốn', 'cổ phiếu', 'chứng khoán', 'tiết kiệm', 'gửi tiết kiệm'],
+  },
+  {
+    key: 'di_chuyen',
+    label: '✈️ Di chuyển',
+    color: '#eab308',
+    keywords: ['công tác', 'vé', 'máy bay', 'tàu', 'xe buýt', 'taxi', 'grab', 'xăng xe', 'đi lại', 'du lịch', 'nghỉ mát', 'khách sạn'],
+  },
+  {
+    key: 'y_te',
+    label: '🏥 Y tế',
+    color: '#14b8a6',
+    keywords: ['bệnh viện', 'thuốc', 'khám', 'y tế', 'sức khỏe', 'bảo hiểm', 'viện phí'],
+  },
+  {
+    key: 'giao_duc',
+    label: '📚 Giáo dục',
+    color: '#6366f1',
+    keywords: ['học', 'trường', 'học phí', 'sách', 'khóa học', 'đào tạo', 'học bổng'],
+  },
+  {
+    key: 'khac',
+    label: '📦 Khác',
+    color: '#94a3b8',
+    keywords: [], // fallback
+  },
+];
+
+function classifyItem(name) {
+  const lower = name.toLowerCase();
+  for (const g of CHI_GROUPS) {
+    if (g.keywords.some(kw => lower.includes(kw))) return g.key;
+  }
+  return 'khac';
+}
+
+function groupChiItems(months) {
+  const totals = {};
+  CHI_GROUPS.forEach(g => { totals[g.key] = 0; });
+
+  for (const m of months) {
+    for (const item of m.chi) {
+      const gKey = classifyItem(item.name);
+      totals[gKey] += Math.abs(item.amount);
+    }
+  }
+
+  // Chỉ giữ nhóm có giá trị > 0
+  return CHI_GROUPS
+    .filter(g => totals[g.key] > 0)
+    .map(g => ({ label: g.label, value: totals[g.key], color: g.color }))
+    .sort((a, b) => b.value - a.value);
+}
+
 function buildCharts(months) {
   destroyCharts();
   const labels = months.map(m => m.month);
@@ -694,33 +772,25 @@ function buildCharts(months) {
     }
   });
 
-  // Pie chart — aggregate chi items
-  const allChi = {};
-  for (const m of months) {
-    for (const item of m.chi) {
-      const key = item.name;
-      allChi[key] = (allChi[key] || 0) + Math.abs(item.amount);
-    }
-  }
-  const sorted = Object.entries(allChi).sort((a,b) => b[1]-a[1]);
-  const TOP = 8;
-  let pieLabels = sorted.slice(0, TOP).map(x => x[0]);
-  let pieData = sorted.slice(0, TOP).map(x => x[1]);
-  if (sorted.length > TOP) {
-    const rest = sorted.slice(TOP).reduce((s,x) => s+x[1], 0);
-    pieLabels.push('Khác');
-    pieData.push(rest);
-  }
-  const total = pieData.reduce((a,b) => a+b, 0);
+  // Pie chart — nhóm theo danh mục
+  const groups = groupChiItems(months);
+  const pieLabels  = groups.map(g => g.label);
+  const pieData    = groups.map(g => g.value);
+  const pieColors  = groups.map(g => g.color);
+  const total      = pieData.reduce((a, b) => a + b, 0);
+
   charts.pie = new Chart(document.getElementById('pieChart'), {
     type: 'doughnut',
     data: {
       labels: pieLabels,
-      datasets: [{ data: pieData, backgroundColor: PIE_PALETTE, borderWidth: 2, borderColor: '#1e293b' }]
+      datasets: [{ data: pieData, backgroundColor: pieColors, borderWidth: 2, borderColor: '#1e293b' }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + fmtVND(ctx.raw) + ' (' + (ctx.raw/total*100).toFixed(1) + '%)' } } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtVND(ctx.raw) + ' (' + (ctx.raw / total * 100).toFixed(1) + '%)' } }
+      },
       cutout: '60%'
     }
   });
@@ -728,59 +798,5 @@ function buildCharts(months) {
   // Legend
   const legendEl = document.getElementById('pie-legend');
   legendEl.innerHTML = '';
-  pieLabels.forEach((lbl, i) => {
-    const pct = (pieData[i]/total*100).toFixed(1);
-    legendEl.innerHTML += `<div class="legend-item">
-      <div class="legend-dot" style="background:${PIE_PALETTE[i]}"></div>
-      <div class="legend-label">${lbl}</div>
-      <div class="legend-value">${fmtVNDShort(pieData[i])}</div>
-      <div class="legend-pct">${pct}%</div>
-    </div>`;
-  });
-}
-
-// ========== RENDER MONTHS ==========
-function renderMonths(months) {
-  const container = document.getElementById('months-list');
-  container.innerHTML = '';
-
-  for (const m of months) {
-    const pos = m.ketDu >= 0;
-    const card = document.createElement('div');
-    card.className = 'month-card';
-    card.innerHTML = `
-      <div class="month-header" onclick="toggleMonth(this)">
-        <div class="month-title">
-          📅 ${m.month}
-          <span class="month-badge ${pos ? 'pos' : 'neg'}">${pos ? '▲' : '▼'} ${fmtVNDShort(m.ketDu)}</span>
-        </div>
-        <div class="month-summary">
-          <span style="color:var(--green)">↑ ${fmtVNDShort(m.totalThu)}</span>
-          <span style="color:var(--red)">↓ ${fmtVNDShort(m.totalChi)}</span>
-          ${m.totalLangphi > 0 ? `<span style="color:var(--orange)">⚠ ${fmtVNDShort(m.totalLangphi)}</span>` : ''}
-        </div>
-        <span class="chevron">▼</span>
-      </div>
-      <div class="month-body">
-        <div class="section-grid">
-          ${renderSection('thu', 'Thu nhập', m.thu)}
-          ${renderSection('chi', 'Chi tiêu', m.chi)}
-          ${m.langphi.length > 0 ? renderSection('langphi', 'Lãng phí', m.langphi) : ''}
-        </div>
-        <div class="kết-dư-row">
-          <span>Kết dư tháng ${m.month}</span>
-          <span class="${pos ? 'pos' : 'neg'}">${fmtVND(m.ketDu, true)}</span>
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-  }
-}
-
-function renderSection(cls, title, items) {
-  if (items.length === 0) return '';
-  const rows = items.map(it => `
-    <li>
-      <span class="item-name">${it.name}</span>
-      <span class="item-amount ${it.amount >= 0 ? 'pos' : 'neg'}">${fmtVND(it.amount, true)}</span>
-    </li>`).jo
+  groups.forEach((g, i) => {
+    const pct = (g.value / to
