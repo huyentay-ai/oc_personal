@@ -1,6 +1,6 @@
 # Sổ thu chi 2026
 
-**Tổng kết dư (tất cả các tháng): 26.568.996đ**
+**Tổng kết dư (tất cả các tháng): 30.759.996đ**
 
 ---
 
@@ -93,8 +93,10 @@
 - Pay 1 phần tiền lương: +1.000.000đ
 - Phần lương cơ bản tháng 4: +7.474.760đ
 - 14/04 - Vợ chuyển: +5.000.000đ
+- 24/04 - Tiền chi ngày giỗ tổ: +5.000.000đ
+- 24/04 - Thưởng chiến sĩ thi đua cơ sở 2025: +2.340.000đ
 
-**Tổng thu 2026-04: 14.474.760đ**
+**Tổng thu 2026-04: 21.814.760đ**
 
 ### Chi
 - Chuyển anh Linh đầu tư CPU game AU/DB game Audition lần 2: -8.800.000đ
@@ -103,8 +105,10 @@
 - Vé bơi 30 buổi: -3.100.000đ
 - 12/04 - Nộp tiền bảo hiểm An Tâm Techcombank: -3.060.000đ
 - 14/04 - Tiền khám bệnh ĐH Y (3 triệu chụp cộng hưởng từ): -4.926.000đ
+- 15/04 - Chi phí khám bệnh nội soi ĐH Y: -2.650.000đ
+- 18/04 - Mua Claude Pro: -500.000đ
 
-**Tổng chi 2026-04: 89.979.000đ**
+**Tổng chi 2026-04: 93.129.000đ**
 
 ### Lãng phí
 - (chưa có)
@@ -112,4 +116,4 @@
 **Tổng lãng phí 2026-04: 0đ**
 
 ### Kết dư
-**Kết dư 2026-04: -75.504.240đ**
+**Kết dư 2026-04: -71.314.240đ**

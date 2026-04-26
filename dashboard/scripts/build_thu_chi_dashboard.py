@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = ROOT / 'memory' / 'notes' / 'so_thu_chi.md'
+SOURCE = ROOT / 'memory' / 'notes' / 'sothuchi' / 'so_thu_chi_2026.md'
 OUT_JSON = ROOT / 'dashboard' / 'data' / 'thu_chi_data.json'
 OUT_HTML = ROOT / 'dashboard' / 'thu_chi_dashboard.html'
 
@@ -156,7 +156,7 @@ template = '''<!DOCTYPE html>
 <body>
   <div class="wrap">
     <h1>Dashboard thu chi hàng tháng</h1>
-    <div class="sub">Tự động sinh từ file <code>memory/notes/so_thu_chi.md</code></div>
+    <div class="sub">Tự động sinh từ file <code>memory/notes/sothuchi/so_thu_chi_2026.md</code></div>
 
     <div class="grid">
       <div class="card"><div class="label">Tổng kết dư</div><div class="value blue" id="overallBalance"></div></div>

@@ -2,7 +2,7 @@
 
 Dashboard này được tạo tự động từ file:
 
-- `memory/notes/so_thu_chi.md`
+- `memory/notes/sothuchi/so_thu_chi_2026.md`
 
 ## Cách cập nhật
 

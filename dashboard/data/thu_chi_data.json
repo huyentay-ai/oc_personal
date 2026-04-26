@@ -1,8 +1,8 @@
 {
   "summary": {
-    "overallBalance": 26568996,
-    "totalIncome": 318763996,
-    "totalExpense": 292195000,
+    "overallBalance": 30759996,
+    "totalIncome": 326103996,
+    "totalExpense": 295345000,
     "totalWaste": 0,
     "latestMonth": "2026-04"
   },
@@ -173,6 +173,14 @@
         {
           "label": "14/04 - Vợ chuyển",
           "amount": 5000000
+        },
+        {
+          "label": "24/04 - Tiền chi ngày giỗ tổ",
+          "amount": 5000000
+        },
+        {
+          "label": "24/04 - Thưởng chiến sĩ thi đua cơ sở 2025",
+          "amount": 2340000
         }
       ],
       "expenseItems": [
@@ -199,13 +207,21 @@
         {
           "label": "14/04 - Tiền khám bệnh ĐH Y (3 triệu chụp cộng hưởng từ)",
           "amount": -4926000
+        },
+        {
+          "label": "15/04 - Chi phí khám bệnh nội soi ĐH Y",
+          "amount": -2650000
+        },
+        {
+          "label": "18/04 - Mua Claude Pro",
+          "amount": -500000
         }
       ],
       "wasteItems": [],
-      "incomeTotal": 14474760,
-      "expenseTotal": 89979000,
+      "incomeTotal": 21814760,
+      "expenseTotal": 93129000,
       "wasteTotal": 0,
-      "balance": -75504240
+      "balance": -71314240
     }
   ]
 }
