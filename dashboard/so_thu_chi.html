@@ -659,43 +659,19 @@ const CHI_GROUPS = [
     key: 'gia_dinh',
     label: '👨‍👩‍👧 Gia đình',
     color: '#3b82f6',
-    keywords: ['vợ', 'chồng', 'con', 'bố', 'mẹ', 'cha', 'ba', 'anh', 'chị', 'em', 'gia đình', 'chuyển vợ', 'chuyển cho vợ'],
+    keywords: ['vợ'],
   },
   {
     key: 'sinh_hoat',
     label: '🏠 Sinh hoạt',
     color: '#22c55e',
-    keywords: ['chi tiêu', 'ăn', 'uống', 'điện', 'nước', 'nhà', 'xăng', 'gas', 'sinh hoạt', 'tiêu dùng', 'thực phẩm', 'chợ', 'siêu thị'],
+    keywords: ['chi tiêu'],
   },
   {
     key: 'mua_sam',
     label: '🛒 Mua sắm',
     color: '#f97316',
-    keywords: ['mua', 'sắm', 'xe', 'máy', 'điện thoại', 'laptop', 'máy tính', 'tivi', 'tủ lạnh', 'quần áo', 'giày', 'túi'],
-  },
-  {
-    key: 'dau_tu',
-    label: '💰 Đầu tư',
-    color: '#a855f7',
-    keywords: ['đầu tư', 'kinh doanh', 'cpu', 'game', 'server', 'vốn', 'cổ phiếu', 'chứng khoán', 'tiết kiệm', 'gửi tiết kiệm'],
-  },
-  {
-    key: 'di_chuyen',
-    label: '✈️ Di chuyển',
-    color: '#eab308',
-    keywords: ['công tác', 'vé', 'máy bay', 'tàu', 'xe buýt', 'taxi', 'grab', 'xăng xe', 'đi lại', 'du lịch', 'nghỉ mát', 'khách sạn'],
-  },
-  {
-    key: 'y_te',
-    label: '🏥 Y tế',
-    color: '#14b8a6',
-    keywords: ['bệnh viện', 'thuốc', 'khám', 'y tế', 'sức khỏe', 'bảo hiểm', 'viện phí'],
-  },
-  {
-    key: 'giao_duc',
-    label: '📚 Giáo dục',
-    color: '#6366f1',
-    keywords: ['học', 'trường', 'học phí', 'sách', 'khóa học', 'đào tạo', 'học bổng'],
+    keywords: ['mua'],
   },
   {
     key: 'khac',
@@ -795,4 +771,40 @@ function buildCharts(months) {
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-      
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtVND(ctx.raw) + ' (' + (ctx.raw / total * 100).toFixed(1) + '%)' } }
+      },
+      cutout: '60%'
+    }
+  });
+
+  // Legend
+  const legendEl = document.getElementById('pie-legend');
+  legendEl.innerHTML = '';
+  groups.forEach((g, i) => {
+    const pct = (g.value / total * 100).toFixed(1);
+    const kwHtml = g.keywords.length
+      ? `<div class="legend-keywords">${g.keywords.map(k => `<span class="legend-kw">${k}</span>`).join('')}</div>`
+      : '';
+    legendEl.innerHTML += `<div class="legend-item">
+      <div class="legend-dot" style="background:${g.color}"></div>
+      <div class="legend-meta">
+        <div class="legend-label">${g.label}</div>
+        ${kwHtml}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="legend-value">${fmtVNDShort(g.value)}</div>
+        <div class="legend-pct">${pct}%</div>
+      </div>
+    </div>`;
+  });
+}
+
+// ========== RENDER MONTHS ==========
+function renderMonths(months) {
+  const container = document.getElementById('months-list');
+  container.innerHTML = '';
+
+  for (const m of months) {
+    const pos = m.ketDu >= 0;
+    const card = document.createEle
