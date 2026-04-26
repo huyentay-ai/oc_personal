@@ -26,6 +26,49 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
+    /* === LOCK SCREEN === */
+    #lock-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lock-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 380px;
+      text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+    .lock-icon { font-size: 48px; margin-bottom: 16px; }
+    .lock-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .lock-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+    .lock-input-wrap { position: relative; margin-bottom: 16px; }
+    .lock-input {
+      width: 100%; padding: 13px 44px 13px 16px;
+      border-radius: 10px; border: 1.5px solid var(--border);
+      background: var(--surface2); color: var(--text);
+      font-size: 16px; outline: none; letter-spacing: 2px;
+      transition: border-color .2s;
+    }
+    .lock-input:focus { border-color: var(--blue); }
+    .lock-input.error { border-color: var(--red); animation: shake .3s; }
+    .lock-eye {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--text-muted);
+      font-size: 18px; padding: 2px;
+    }
+    .lock-eye:hover { color: var(--text); }
+    .lock-btn {
+      width: 100%; padding: 13px; border-radius: 10px; border: none;
+      background: var(--blue); color: #fff; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: opacity .2s; letter-spacing: .02em;
+    }
+    .lock-btn:hover { opacity: .88; }
+    .lock-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .lock-error { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 18px; }
+    .lock-attempts { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)}
+    }
+
     /* === HEADER === */
     header {
       background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
@@ -218,6 +261,26 @@
 </head>
 <body>
 
+<!-- LOCK SCREEN -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <h2>Sổ Thu Chi</h2>
+    <p>Nhập mã để truy cập</p>
+    <div class="lock-input-wrap">
+      <input type="password" id="lock-input" class="lock-input"
+        placeholder="Nhập mã..." autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doUnlock()" />
+      <button class="lock-eye" onclick="toggleLockEye()" id="lock-eye-btn" title="Hiện/ẩn">👁</button>
+    </div>
+    <button class="lock-btn" onclick="doUnlock()" id="lock-btn">Mở khóa</button>
+    <div class="lock-error" id="lock-error"></div>
+    <div class="lock-attempts" id="lock-attempts"></div>
+  </div>
+</div>
+
+<div id="app-wrapper" style="display:none">
+
 <header>
   <div class="logo">💰</div>
   <div>
@@ -246,7 +309,7 @@
 
     <div id="tab-url" class="tab-panel">
       <div class="url-row">
-        <input type="text" id="url-input" placeholder="https://github.com/user/repo/blob/master/so_thu_chi.md" />
+        <input type="text" id="url-input" value="https://github.com/huyentay-ai/oc_personal/blob/master/memory/notes/so_thu_chi.md" placeholder="https://github.com/user/repo/blob/master/so_thu_chi.md" />
         <button class="btn-primary" onclick="loadFromURL()">Tải về</button>
       </div>
       <p class="load-hint">⚠️ URL phải cho phép CORS hoặc là raw file (GitHub raw, Gist, v.v.)</p>
@@ -729,80 +792,3 @@ function toRawURL(url) {
   // github.dev/user/repo/blob/branch/path/file.md  (same transform)
   m = url.match(/^https?:\/\/github\.dev\/([^/]+\/[^/]+)\/blob\/(.+)$/);
   if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2];
-
-  // gist.github.com/user/id  (already works via raw embed)
-  m = url.match(/^https?:\/\/gist\.github\.com\/([^/]+\/[a-f0-9]+)\/?$/);
-  if (m) return 'https://gist.githubusercontent.com/' + m[1] + '/raw';
-
-  return url; // pass through as-is
-}
-
-function loadFromURL() {
-  const raw = document.getElementById('url-input').value.trim();
-  if (!raw) { showError('Vui lòng nhập URL.'); return; }
-  hideError();
-
-  const url = toRawURL(raw);
-  const converted = url !== raw;
-
-  // Show user what URL we're actually fetching
-  const hint = document.querySelector('.load-hint');
-  if (converted) {
-    hint.innerHTML = '🔄 Đã chuyển sang raw URL: <code style="color:var(--blue);font-size:11px;word-break:break-all">' + url + '</code>';
-  }
-
-  document.querySelector('.btn-primary').disabled = true;
-  fetch(url)
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-    .then(md => render(md, raw.split('/').pop().split('?')[0]))
-    .catch(e => {
-      hint.innerHTML = '⚠️ URL phải cho phép CORS hoặc là raw file (GitHub raw, Gist, v.v.)';
-      showError('Không thể tải URL: ' + e.message + (converted ? '' : '. Thử dán URL từ github.com hoặc github.dev.'));
-    })
-    .finally(() => document.querySelector('.btn-primary').disabled = false);
-}
-
-function loadDemo() {
-  hideError();
-  render(DEMO_MD, 'so_thu_chi.md (mẫu)');
-}
-
-function resetApp() {
-  destroyCharts();
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('load-section').style.display = 'block';
-  document.getElementById('file-input').value = '';
-  document.getElementById('url-input').value = '';
-}
-
-// ========== UI HELPERS ==========
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0) === (tab === 'upload')));
-  document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
-  document.getElementById('tab-url').classList.toggle('active', tab === 'url');
-}
-
-function showError(msg) {
-  const el = document.getElementById('error-msg');
-  el.textContent = '❌ ' + msg;
-  el.style.display = 'block';
-}
-function hideError() {
-  document.getElementById('error-msg').style.display = 'none';
-}
-
-// Drag & drop
-const dz = document.getElementById('dropzone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) { const fi = document.getElementById('file-input'); fi.files = e.dataTransfer.files; handleFileInput(fi); }
-});
-
-// Enter key on URL
-document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') loadFromURL(); });
-</script>
-</body>
-</html>
