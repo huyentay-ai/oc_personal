@@ -336,15 +336,6 @@
         </div>
       </div>
 
-      <div class="token-row">
-        <span class="token-label">🔑 Token</span>
-        <input type="password" id="gh-token-input"
-          placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (repo private)"
-          autocomplete="off" oninput="saveToken()"
-          onkeydown="if(event.key==='Enter')loadFromGitHub()" />
-      </div>
-      <div class="token-saved" id="token-saved">✓ Token đã lưu trong session</div>
-
       <button class="btn-primary gh-load-btn" id="gh-load-btn" onclick="loadFromGitHub()">
         📥 Tải dữ liệu từ GitHub
       </button>
@@ -791,4 +782,9 @@ function renderStats(months) {
   months.forEach(m => cumDu += m.ketDu);
   const rate = totalThu > 0 ? ((cumDu / totalThu) * 100).toFixed(1) : '0';
 
-  document.getElementById('stat-thu').textCon
+  document.getElementById('stat-thu').textContent = fmtVNDShort(totalThu);
+  document.getElementById('stat-thu-sub').textContent = `${months.length} tháng`;
+  document.getElementById('stat-chi').textContent = fmtVNDShort(totalChi);
+  document.getElementById('stat-chi-sub').textContent = totalLp > 0 ? `Lãng phí: ${fmtVNDShort(totalLp)}` : 'Không có lãng phí';
+  document.getElementById('stat-du').textContent = fmtVNDShort(cumDu);
+  document.getElement
