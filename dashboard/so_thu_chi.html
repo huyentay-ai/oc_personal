@@ -316,6 +316,7 @@
     <h2>📂 Tải dữ liệu</h2>
     <div class="load-tabs">
       <button class="tab-btn active" onclick="switchTab('github')">🐙 GitHub</button>
+      <button class="tab-btn" onclick="switchTab('url')">🔗 Từ URL</button>
       <button class="tab-btn" onclick="switchTab('upload')">📁 Upload file</button>
     </div>
 
@@ -352,6 +353,17 @@
         📥 Tải dữ liệu từ GitHub
       </button>
       <p class="load-hint" id="gh-load-hint"></p>
+    </div>
+
+    <!-- TAB: Từ URL -->
+    <div id="tab-url" class="tab-panel">
+      <div class="url-row">
+        <input type="text" id="url-input"
+          value="https://raw.githubusercontent.com/huyentay-ai/oc_personal/master/memory/notes/so_thu_chi.md"
+          placeholder="https://raw.githubusercontent.com/..." />
+        <button class="btn-primary" id="url-load-btn" onclick="loadFromURL()">Tải về</button>
+      </div>
+      <p class="load-hint" id="url-load-hint">ℹ️ Hỗ trợ raw GitHub, Gist, hoặc bất kỳ URL trả về text/markdown.</p>
     </div>
 
     <!-- TAB: Upload file -->
@@ -772,22 +784,4 @@ function renderSection(cls, title, items) {
       <span class="item-name">${it.name}</span>
       <span class="item-amount ${it.amount >= 0 ? 'pos' : 'neg'}">${fmtVND(it.amount, true)}</span>
     </li>`).join('');
-  const total = items.reduce((s, x) => s + x.amount, 0);
-  const totalCls = total >= 0 ? 'pos' : (cls === 'langphi' ? 'warn' : 'neg');
-  return `<div class="section-box ${cls}">
-    <h4>${title}</h4>
-    <ul>${rows}</ul>
-    <div class="section-total ${totalCls}">Tổng: ${fmtVND(total, true)}</div>
-  </div>`;
-}
-
-function toggleMonth(el) {
-  el.closest('.month-card').classList.toggle('open');
-}
-
-// ========== STATS ==========
-function renderStats(months) {
-  const totalThu = months.reduce((s, m) => s + m.totalThu, 0);
-  const totalChi = months.reduce((s, m) => s + m.totalChi, 0);
-  const totalLp = months.reduce((s, m) => s + m.totalLangphi, 0);
-  l
+  cons
