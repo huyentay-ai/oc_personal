@@ -119,6 +119,16 @@
     }
     .url-row input:focus { border-color: var(--blue); }
     .url-row input::placeholder { color: var(--text-muted); }
+    .token-row { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+    .token-row input {
+      flex: 1; padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text); font-size: 13px; outline: none;
+      font-family: monospace; letter-spacing: 1px;
+    }
+    .token-row input:focus { border-color: var(--purple); }
+    .token-row input::placeholder { color: var(--text-muted); letter-spacing: 0; font-family: inherit; }
+    .token-label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+    .token-saved { font-size: 11px; color: var(--green); margin-top: 4px; display: none; }
     .btn-primary {
       padding: 11px 22px; border-radius: 8px; border: none;
       background: var(--blue); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s;
@@ -312,7 +322,12 @@
         <input type="text" id="url-input" value="https://raw.githubusercontent.com/huyentay-ai/oc_personal/master/memory/notes/so_thu_chi.md" placeholder="https://github.com/user/repo/blob/master/so_thu_chi.md" />
         <button class="btn-primary" onclick="loadFromURL()">Tải về</button>
       </div>
-      <p class="load-hint">⚠️ URL phải cho phép CORS hoặc là raw file (GitHub raw, Gist, v.v.)</p>
+      <div class="token-row">
+        <span class="token-label">🔑 GitHub Token <span style="color:var(--text-muted);font-size:11px">(repo private)</span></span>
+        <input type="password" id="gh-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" oninput="saveToken()" />
+      </div>
+      <div class="token-saved" id="token-saved">✓ Token đã lưu trong session</div>
+      <p class="load-hint" id="url-load-hint">ℹ️ Repo private cần nhập GitHub Token. Repo public để trống.</p>
     </div>
 
     <div id="error-msg"></div>
@@ -763,32 +778,4 @@ function render(md, filename) {
   document.getElementById('loading').style.display = 'block';
 
   setTimeout(() => {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    if (filename) document.getElementById('dash-title').textContent = '📊 ' + filename;
-    renderStats(months);
-    buildCharts(months);
-    renderMonths(months);
-  }, 300);
-}
-
-// ========== LOAD HANDLERS ==========
-function handleFileInput(input) {
-  const file = input.files[0];
-  if (!file) return;
-  hideError();
-  const reader = new FileReader();
-  reader.onload = e => render(e.target.result, file.name);
-  reader.onerror = () => showError('Không thể đọc file.');
-  reader.readAsText(file, 'UTF-8');
-}
-
-function toRawURL(url) {
-  // github.com/user/repo/blob/branch/path/file.md
-  //   → raw.githubusercontent.com/user/repo/branch/path/file.md
-  let m = url.match(/^https?:\/\/github\.com\/([^/]+\/[^/]+)\/blob\/(.+)$/);
-  if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2];
-
-  // github.dev/user/repo/blob/branch/path/file.md  (same transform)
-  m = url.match(/^https?:\/\/github\.dev\/([^/]+\/[^/]+)\/blob\/(.+)$/);
-  if (m) return 'https://raw.githubusercontent.com/' + m[1] + '
+    document.getElementById('loading').style.display =
