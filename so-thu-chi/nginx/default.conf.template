@@ -29,7 +29,7 @@ server {
     location = /api/data {
         resolver 8.8.8.8 valid=60s ipv6=off;
 
-        proxy_pass https://raw.githubusercontent.com/huyentay-ai/oc_personal/master/memory/notes/so_thu_chi.md;
+        proxy_pass https://raw.githubusercontent.com/huyentay-ai/oc_personal/master/memory/notes/sothuchi/so_thu_chi_2026.md;
         proxy_set_header Host "raw.githubusercontent.com";
         proxy_set_header Authorization "token ${GITHUB_TOKEN}";
         proxy_ssl_server_name on;
@@ -54,6 +54,4 @@ server {
 
     # SPA fallback
     location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
+        try_files $uri $uri/ /index.
