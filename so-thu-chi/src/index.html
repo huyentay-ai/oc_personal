@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sổ Thu Chi</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #273348;
+      --border: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --green: #22c55e;
+      --green-light: #dcfce7;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --blue: #3b82f6;
+      --orange: #f97316;
+      --purple: #a855f7;
+      --yellow: #eab308;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    /* === LOCK SCREEN === */
+    #lock-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lock-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 380px;
+      text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+    .lock-icon { font-size: 48px; margin-bottom: 16px; }
+    .lock-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .lock-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+    .lock-input-wrap { position: relative; margin-bottom: 16px; }
+    .lock-input {
+      width: 100%; padding: 13px 44px 13px 16px;
+      border-radius: 10px; border: 1.5px solid var(--border);
+      background: var(--surface2); color: var(--text);
+      font-size: 16px; outline: none; letter-spacing: 2px;
+      transition: border-color .2s;
+    }
+    .lock-input:focus { border-color: var(--blue); }
+    .lock-input.error { border-color: var(--red); animation: shake .3s; }
+    .lock-eye {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--text-muted);
+      font-size: 18px; padding: 2px;
+    }
+    .lock-eye:hover { color: var(--text); }
+    .lock-btn {
+      width: 100%; padding: 13px; border-radius: 10px; border: none;
+      background: var(--blue); color: #fff; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: opacity .2s; letter-spacing: .02em;
+    }
+    .lock-btn:hover { opacity: .88; }
+    .lock-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .lock-error { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 18px; }
+    .lock-attempts { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)}
+    }
+
+    /* === HEADER === */
+    header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    header .logo { font-size: 28px; }
+    header h1 { font-size: 22px; font-weight: 700; color: var(--text); }
+    header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    /* === LOAD SECTION === */
+    #load-section {
+      max-width: 860px; margin: 40px auto; padding: 0 20px;
+    }
+    .load-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .load-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+    .load-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tab-btn {
+      padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted); cursor: pointer; font-size: 14px; font-weight: 500; transition: all .2s;
+    }
+    .tab-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* upload dropzone */
+    .dropzone {
+      border: 2px dashed var(--border); border-radius: 10px; padding: 40px 20px;
+      text-align: center; cursor: pointer; transition: all .2s; position: relative;
+    }
+    .dropzone:hover, .dropzone.drag-over { border-color: var(--blue); background: rgba(59,130,246,.06); }
+    .dropzone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .dropzone .dz-icon { font-size: 40px; margin-bottom: 10px; }
+    .dropzone p { color: var(--text-muted); font-size: 14px; }
+    .dropzone strong { color: var(--blue); }
+
+    /* url input */
+    .url-row { display: flex; gap: 10px; }
+    .url-row input {
+      flex: 1; padding: 11px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text); font-size: 14px; outline: none;
+    }
+    .url-row input:focus { border-color: var(--blue); }
+    .url-row input::placeholder { color: var(--text-muted); }
+    .btn-primary {
+      padding: 11px 22px; border-radius: 8px; border: none;
+      background: var(--blue); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: .85; }
+    .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+
+    .load-hint { margin-top: 14px; font-size: 12px; color: var(--text-muted); }
+
+    #error-msg { color: var(--red); font-size: 13px; margin-top: 12px; display: none; }
+
+    /* demo banner */
+    .demo-banner {
+      background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.3);
+      border-radius: 8px; padding: 12px 16px; margin-top: 16px;
+      display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted);
+    }
+    .demo-banner button { margin-left: auto; background: transparent; border: 1px solid var(--blue); color: var(--blue); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .demo-banner button:hover { background: var(--blue); color: #fff; }
+
+    /* === DASHBOARD === */
+    #dashboard { display: none; max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+
+    .dash-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+    .dash-header h2 { font-size: 20px; font-weight: 700; }
+    .btn-reload { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 13px; }
+    .btn-reload:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* stat cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; position: relative; overflow: hidden;
+    }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .stat-card.green::before { background: var(--green); }
+    .stat-card.red::before { background: var(--red); }
+    .stat-card.blue::before { background: var(--blue); }
+    .stat-card.purple::before { background: var(--purple); }
+    .stat-card .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+    .stat-card .value { font-size: 22px; font-weight: 700; }
+    .stat-card.green .value { color: var(--green); }
+    .stat-card.red .value { color: var(--red); }
+    .stat-card.blue .value { color: var(--blue); }
+    .stat-card.purple .value { color: var(--purple); }
+    .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* charts row */
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    @media(max-width:700px) { .charts-row { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;
+    }
+    .chart-card h3 { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: .04em; }
+    .chart-wrap { position: relative; height: 240px; }
+
+    /* pie chart card */
+    .pie-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 28px;
+    }
+    .pie-card h3 { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: .04em; }
+    .pie-layout { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .pie-wrap { position: relative; width: 200px; height: 200px; flex-shrink: 0; }
+    .pie-legend { flex: 1; min-width: 180px; }
+    .legend-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .legend-item:last-child { border-bottom: none; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .legend-label { font-size: 13px; flex: 1; }
+    .legend-value { font-size: 13px; font-weight: 600; }
+    .legend-pct { font-size: 11px; color: var(--text-muted); margin-left: 6px; }
+
+    /* monthly table */
+    .months-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .month-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 16px; overflow: hidden;
+    }
+    .month-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; cursor: pointer; user-select: none;
+      background: var(--surface2);
+    }
+    .month-header:hover { background: rgba(59,130,246,.07); }
+    .month-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .month-badge {
+      padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .month-badge.pos { background: rgba(34,197,94,.15); color: var(--green); }
+    .month-badge.neg { background: rgba(239,68,68,.15); color: var(--red); }
+    .month-summary { display: flex; gap: 20px; font-size: 13px; }
+    .month-summary span { display: flex; align-items: center; gap: 4px; }
+    .chevron { font-size: 12px; color: var(--text-muted); transition: transform .2s; }
+    .month-card.open .chevron { transform: rotate(180deg); }
+    .month-body { display: none; padding: 16px 20px; }
+    .month-card.open .month-body { display: block; }
+    .section-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .section-box { background: var(--bg); border-radius: 8px; padding: 12px; }
+    .section-box h4 { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; font-weight: 600; }
+    .section-box.thu h4 { color: var(--green); }
+    .section-box.chi h4 { color: var(--red); }
+    .section-box.langphi h4 { color: var(--orange); }
+    .section-box ul { list-style: none; }
+    .section-box ul li { font-size: 13px; color: var(--text-muted); padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; }
+    .section-box ul li:last-child { border-bottom: none; }
+    .section-box ul li .item-name { flex: 1; }
+    .section-box ul li .item-amount { font-weight: 600; white-space: nowrap; }
+    .section-box ul li .item-amount.pos { color: var(--green); }
+    .section-box ul li .item-amount.neg { color: var(--red); }
+    .section-total { margin-top: 10px; font-size: 13px; font-weight: 700; text-align: right; padding-top: 8px; border-top: 1px solid var(--border); }
+    .section-total.pos { color: var(--green); }
+    .section-total.neg { color: var(--red); }
+    .section-total.warn { color: var(--orange); }
+
+    .kết-dư-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--border);
+      font-weight: 700; font-size: 15px;
+    }
+    .kết-dư-row .pos { color: var(--green); }
+    .kết-dư-row .neg { color: var(--red); }
+
+    /* loading spinner */
+    #loading { display: none; text-align: center; padding: 40px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media(max-width:500px) {
+      .month-summary { flex-wrap: wrap; gap: 8px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <h2>Sổ Thu Chi</h2>
+    <p>Nhập mã để truy cập</p>
+    <div class="lock-input-wrap">
+      <input type="password" id="lock-input" class="lock-input"
+        placeholder="Nhập mã..." autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doUnlock()" />
+      <button class="lock-eye" onclick="toggleLockEye()" id="lock-eye-btn" title="Hiện/ẩn">👁</button>
+    </div>
+    <button class="lock-btn" onclick="doUnlock()" id="lock-btn">Mở khóa</button>
+    <div class="lock-error" id="lock-error"></div>
+    <div class="lock-attempts" id="lock-attempts"></div>
+  </div>
+</div>
+
+<div id="app-wrapper" style="display:none">
+
+<header>
+  <div class="logo">💰</div>
+  <div>
+    <h1>Sổ Thu Chi</h1>
+    <p>Theo dõi thu nhập &amp; chi tiêu cá nhân</p>
+  </div>
+</header>
+
+<!-- LOAD SECTION -->
+<div id="load-section">
+  <div class="load-card">
+    <h2>📂 Tải dữ liệu</h2>
+    <div class="load-tabs">
+      <button class="tab-btn active" onclick="switchTab('upload')">📁 Upload file</button>
+      <button class="tab-btn" onclick="switchTab('url')">🔗 Từ URL</button>
+    </div>
+
+    <div id="tab-upload" class="tab-panel active">
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept=".md,.txt" onchange="handleFileInput(this)" />
+        <div class="dz-icon">📄</div>
+        <p><strong>Kéo thả file</strong> hoặc nhấn để chọn</p>
+        <p style="margin-top:6px; font-size:12px;">Hỗ trợ file <code>.md</code> hoặc <code>.txt</code> định dạng sổ thu chi</p>
+      </div>
+    </div>
+
+    <div id="tab-url" class="tab-panel">
+      <div class="url-row">
+        <input type="text" id="url-input" value="https://raw.githubusercontent.com/huyentay-ai/oc_personal/master/memory/notes/so_thu_chi.md" placeholder="https://github.com/user/repo/blob/master/so_thu_chi.md" />
+        <button class="btn-primary" onclick="loadFromURL()">Tải về</button>
+      </div>
+      <p class="load-hint">⚠️ URL phải cho phép CORS hoặc là raw file (GitHub raw, Gist, v.v.)</p>
+    </div>
+
+    <div id="error-msg"></div>
+
+    <div class="demo-banner">
+      <span>🧪</span>
+      <span>Chưa có file? Thử với dữ liệu mẫu có sẵn</span>
+      <button onclick="loadDemo()">Dùng dữ liệu mẫu</button>
+    </div>
+  </div>
+</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p style="color:var(--text-muted)">Đang xử lý dữ liệu...</p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-header">
+    <h2 id="dash-title">📊 Tổng quan tài chính</h2>
+    <button class="btn-reload" onclick="resetApp()">⟳ Tải lại</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card green">
+      <div class="label">Tổng thu</div>
+      <div class="value" id="stat-thu">—</div>
+      <div class="sub" id="stat-thu-sub"></div>
+    </div>
+    <div class="stat-card red">
+      <div class="label">Tổng chi</div>
+      <div class="value" id="stat-chi">—</div>
+      <div class="sub" id="stat-chi-sub"></div>
+    </div>
+    <div class="stat-card blue">
+      <div class="label">Kết dư tích lũy</div>
+      <div class="value" id="stat-du">—</div>
+      <div class="sub" id="stat-du-sub"></div>
+    </div>
+    <div class="stat-card purple">
+      <div class="label">Tỷ lệ tiết kiệm</div>
+      <div class="value" id="stat-rate">—</div>
+      <div class="sub">% thu nhập được tiết kiệm</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>📈 Thu &amp; Chi theo tháng</h3>
+      <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>💹 Kết dư tích lũy</h3>
+      <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Pie -->
+  <div class="pie-card">
+    <h3>🥧 Phân bổ chi tiêu (tổng tất cả tháng)</h3>
+    <div class="pie-layout">
+      <div class="pie-wrap"><canvas id="pieChart"></canvas></div>
+      <div class="pie-legend" id="pie-legend"></div>
+    </div>
+  </div>
+
+  <!-- Monthly details -->
+  <div class="months-section">
+    <h3>📅 Chi tiết từng tháng</h3>
+    <div id="months-list"></div>
+  </div>
+</div>
+
+<script>
+// ========== DEMO DATA ==========
+const DEMO_MD = `# Sổ thu chi
+
+**Tổng kết dư (tất cả các tháng): 26.568.996đ**
+
+---
+
+## 2026-01
+
+### Thu
+- Tiền chi cho CBNV nhân dịp 20 năm kỷ niệm sinh nhật công ty: +24.125.000đ
+- Tiền lương tháng 12 2025: +35.167.197đ
+- Hỗ trợ CBNV tiền đồng phục năm 2025: +5.000.000đ
+
+**Tổng thu 2026-01: 64.292.197đ**
+
+### Chi
+- Chi tiêu tháng 1: -18.100.000đ
+- Mua xe máy điện: -17.388.000đ
+
+**Tổng chi 2026-01: 35.488.000đ**
+
+### Lãng phí
+- (chưa có)
+
+**Tổng lãng phí 2026-01: 0đ**
+
+### Kết dư
+**Kết dư 2026-01: 28.804.197đ**
+
+## 2026-02
+
+### Thu
+- Lương tháng 2 năm 2026: +32.486.837đ
+- Lương bổ sung năm 2025: +79.261.967đ
+
+**Tổng thu 2026-02: 111.748.804đ**
+
+### Chi
+- Chi tiêu tháng 2: -11.900.000đ
+- Tiền chuyển vợ ngày 09/02: -60.000.000đ
+- Tiền chuyển vợ ngày 11/02: -25.000.000đ
+
+**Tổng chi 2026-02: 96.900.000đ**
+
+### Lãng phí
+- (chưa có)
+
+**Tổng lãng phí 2026-02: 0đ**
+
+### Kết dư
+**Kết dư 2026-02: 14.848.804đ**
+
+## 2026-03
+
+### Thu
+- Công tác phí TP.HCM đầu năm 2026: +1.900.000đ
+- Bán đĩa PS4: +1.000.000đ
+- Tiền ăn chiều: +850.000đ
+- Tiền 8/3: +2.000.000đ
+- Tiền lương: +34.917.837đ
+- Tiền giải chạy TCT VTC: +500.000đ
+- Tiền team building: +3.000.000đ
+- Tiền hội nghị người lao động: +2.000.000đ
+- ITC chi tiền: +5.000.000đ
+- ITC chi tiền: +1.000.000đ
+- Tiền nghỉ mát ITC 2026: +10.000.000đ
+- Tiền lương bổ sung quý I 2026: +31.660.000đ
+- Tiền lương chi lần 1 tháng 3/2026: +34.420.398đ
+
+**Tổng thu 2026-03: 128.248.235đ**
+
+### Chi
+- Chuyển vợ ngày 08/03: -30.000.000đ
+- Chuyển anh Linh đầu tư CPU game AU/DB game Audition: -3.328.000đ
+- Chi tiêu tháng 3: -16.500.000đ
+- Chuyển vợ ngày 28/03: -10.000.000đ
+- Chuyển vợ ngày 30/03: -10.000.000đ
+
+**Tổng chi 2026-03: 69.828.000đ**
+
+### Lãng phí
+- (chưa có)
+
+**Tổng lãng phí 2026-03: 0đ**
+
+### Kết dư
+**Kết dư 2026-03: 58.420.235đ**
+`;
+
+// ========== PARSER ==========
+function parseMarkdown(md) {
+  const months = [];
+  const lines = md.split('\n');
+  let current = null;
+  let section = null; // 'thu' | 'chi' | 'langphi'
+
+  for (let line of lines) {
+    line = line.trim();
+
+    // New month: ## YYYY-MM
+    const mMatch = line.match(/^##\s+(\d{4}-\d{2})/);
+    if (mMatch) {
+      if (current) months.push(current);
+      current = { month: mMatch[1], thu: [], chi: [], langphi: [], ketDu: 0 };
+      section = null;
+      continue;
+    }
+    if (!current) continue;
+
+    // Section headers
+    if (/^###\s+Thu$/i.test(line)) { section = 'thu'; continue; }
+    if (/^###\s+Chi$/i.test(line)) { section = 'chi'; continue; }
+    if (/^###\s+(Lãng phí|Lang phi)/i.test(line)) { section = 'langphi'; continue; }
+    if (/^###\s+Kết dư/i.test(line)) { section = 'ketdu'; continue; }
+
+    // List items: - Description: ±amount
+    if (line.startsWith('-') && section && section !== 'ketdu') {
+      const text = line.slice(1).trim();
+      if (text === '(chưa có)' || text === '') continue;
+      // extract amount from last token like +12.345.678đ or -12.345.678đ
+      const amtMatch = text.match(/([+-][\d.,]+)đ\s*$/);
+      if (amtMatch) {
+        const name = text.slice(0, text.lastIndexOf(amtMatch[0])).replace(/:?\s*$/, '').trim();
+        const amount = parseVNAmount(amtMatch[1]);
+        if (section === 'thu') current.thu.push({ name, amount });
+        else if (section === 'chi') current.chi.push({ name, amount });
+        else if (section === 'langphi') current.langphi.push({ name, amount });
+      }
+      continue;
+    }
+
+    // Kết dư line
+    const kdMatch = line.match(/\*\*Kết dư[\s\S]*?:\s*([-+]?[\d.,]+)đ\*\*/i);
+    if (kdMatch && current) {
+      current.ketDu = parseVNAmount(kdMatch[1]);
+    }
+
+    // Tổng thu / chi summary (optional, we recalc anyway)
+  }
+  if (current) months.push(current);
+
+  // Recalculate totals
+  for (const m of months) {
+    m.totalThu = m.thu.reduce((s, x) => s + x.amount, 0);
+    m.totalChi = Math.abs(m.chi.reduce((s, x) => s + x.amount, 0));
+    m.totalLangphi = Math.abs(m.langphi.reduce((s, x) => s + x.amount, 0));
+    if (m.ketDu === 0) m.ketDu = m.totalThu - m.totalChi - m.totalLangphi;
+  }
+
+  return months;
+}
+
+function parseVNAmount(str) {
+  // Remove thousands dots, handle sign
+  const sign = str.startsWith('-') ? -1 : 1;
+  const digits = str.replace(/[^0-9]/g, '');
+  return sign * parseInt(digits || '0', 10);
+}
+
+// ========== FORMAT ==========
+function fmtVND(n, showSign = false) {
+  const abs = Math.abs(n);
+  const formatted = abs.toLocaleString('vi-VN') + 'đ';
+  if (showSign) return (n >= 0 ? '+' : '-') + formatted;
+  return (n < 0 ? '-' : '') + formatted;
+}
+
+function fmtVNDShort(n) {
+  const abs = Math.abs(n);
+  const sign = n < 0 ? '-' : '';
+  if (abs >= 1e9) return sign + (abs / 1e9).toFixed(1) + ' tỷ';
+  if (abs >= 1e6) return sign + (abs / 1e6).toFixed(1) + ' triệu';
+  return sign + abs.toLocaleString('vi-VN') + 'đ';
+}
+
+// ========== CHARTS ==========
+let charts = {};
+function destroyCharts() {
+  for (const k in charts) { try { charts[k].destroy(); } catch(e){} }
+  charts = {};
+}
+
+const CHART_COLORS = {
+  green: 'rgba(34,197,94,',
+  red: 'rgba(239,68,68,',
+  blue: 'rgba(59,130,246,',
+  purple: 'rgba(168,85,247,',
+  orange: 'rgba(249,115,22,',
+  yellow: 'rgba(234,179,8,',
+  teal: 'rgba(20,184,166,',
+  pink: 'rgba(236,72,153,',
+};
+const PIE_PALETTE = ['#3b82f6','#22c55e','#f97316','#a855f7','#ef4444','#eab308','#14b8a6','#ec4899','#6366f1','#84cc16'];
+
+function buildCharts(months) {
+  destroyCharts();
+  const labels = months.map(m => m.month);
+
+  // Bar chart
+  charts.bar = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Thu', data: months.map(m => m.totalThu), backgroundColor: CHART_COLORS.green + '.7)', borderRadius: 4 },
+        { label: 'Chi', data: months.map(m => m.totalChi), backgroundColor: CHART_COLORS.red + '.7)', borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 } } }, tooltip: { callbacks: { label: ctx => ' ' + fmtVND(ctx.raw) } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: '#94a3b8', callback: v => fmtVNDShort(v) }, grid: { color: 'rgba(255,255,255,.06)' } },
+      }
+    }
+  });
+
+  // Line chart (cumulative)
+  let cum = 0;
+  const cumData = months.map(m => { cum += m.ketDu; return cum; });
+  charts.line = new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Kết dư tích lũy',
+        data: cumData,
+        borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,.1)',
+        borderWidth: 2, pointBackgroundColor: '#3b82f6', pointRadius: 5, fill: true, tension: .35
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + fmtVND(ctx.raw) } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: '#94a3b8', callback: v => fmtVNDShort(v) }, grid: { color: 'rgba(255,255,255,.06)' } },
+      }
+    }
+  });
+
+  // Pie chart — aggregate chi items
+  const allChi = {};
+  for (const m of months) {
+    for (const item of m.chi) {
+      const key = item.name;
+      allChi[key] = (allChi[key] || 0) + Math.abs(item.amount);
+    }
+  }
+  const sorted = Object.entries(allChi).sort((a,b) => b[1]-a[1]);
+  const TOP = 8;
+  let pieLabels = sorted.slice(0, TOP).map(x => x[0]);
+  let pieData = sorted.slice(0, TOP).map(x => x[1]);
+  if (sorted.length > TOP) {
+    const rest = sorted.slice(TOP).reduce((s,x) => s+x[1], 0);
+    pieLabels.push('Khác');
+    pieData.push(rest);
+  }
+  const total = pieData.reduce((a,b) => a+b, 0);
+  charts.pie = new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: pieLabels,
+      datasets: [{ data: pieData, backgroundColor: PIE_PALETTE, borderWidth: 2, borderColor: '#1e293b' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + fmtVND(ctx.raw) + ' (' + (ctx.raw/total*100).toFixed(1) + '%)' } } },
+      cutout: '60%'
+    }
+  });
+
+  // Legend
+  const legendEl = document.getElementById('pie-legend');
+  legendEl.innerHTML = '';
+  pieLabels.forEach((lbl, i) => {
+    const pct = (pieData[i]/total*100).toFixed(1);
+    legendEl.innerHTML += `<div class="legend-item">
+      <div class="legend-dot" style="background:${PIE_PALETTE[i]}"></div>
+      <div class="legend-label">${lbl}</div>
+      <div class="legend-value">${fmtVNDShort(pieData[i])}</div>
+      <div class="legend-pct">${pct}%</div>
+    </div>`;
+  });
+}
+
+// ========== RENDER MONTHS ==========
+function renderMonths(months) {
+  const container = document.getElementById('months-list');
+  container.innerHTML = '';
+
+  for (const m of months) {
+    const pos = m.ketDu >= 0;
+    const card = document.createElement('div');
+    card.className = 'month-card';
+    card.innerHTML = `
+      <div class="month-header" onclick="toggleMonth(this)">
+        <div class="month-title">
+          📅 ${m.month}
+          <span class="month-badge ${pos ? 'pos' : 'neg'}">${pos ? '▲' : '▼'} ${fmtVNDShort(m.ketDu)}</span>
+        </div>
+        <div class="month-summary">
+          <span style="color:var(--green)">↑ ${fmtVNDShort(m.totalThu)}</span>
+          <span style="color:var(--red)">↓ ${fmtVNDShort(m.totalChi)}</span>
+          ${m.totalLangphi > 0 ? `<span style="color:var(--orange)">⚠ ${fmtVNDShort(m.totalLangphi)}</span>` : ''}
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="month-body">
+        <div class="section-grid">
+          ${renderSection('thu', 'Thu nhập', m.thu)}
+          ${renderSection('chi', 'Chi tiêu', m.chi)}
+          ${m.langphi.length > 0 ? renderSection('langphi', 'Lãng phí', m.langphi) : ''}
+        </div>
+        <div class="kết-dư-row">
+          <span>Kết dư tháng ${m.month}</span>
+          <span class="${pos ? 'pos' : 'neg'}">${fmtVND(m.ketDu, true)}</span>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  }
+}
+
+function renderSection(cls, title, items) {
+  if (items.length === 0) return '';
+  const rows = items.map(it => `
+    <li>
+      <span class="item-name">${it.name}</span>
+      <span class="item-amount ${it.amount >= 0 ? 'pos' : 'neg'}">${fmtVND(it.amount, true)}</span>
+    </li>`).join('');
+  const total = items.reduce((s, x) => s + x.amount, 0);
+  const totalCls = total >= 0 ? 'pos' : (cls === 'langphi' ? 'warn' : 'neg');
+  return `<div class="section-box ${cls}">
+    <h4>${title}</h4>
+    <ul>${rows}</ul>
+    <div class="section-total ${totalCls}">Tổng: ${fmtVND(total, true)}</div>
+  </div>`;
+}
+
+function toggleMonth(el) {
+  el.closest('.month-card').classList.toggle('open');
+}
+
+// ========== STATS ==========
+function renderStats(months) {
+  const totalThu = months.reduce((s, m) => s + m.totalThu, 0);
+  const totalChi = months.reduce((s, m) => s + m.totalChi, 0);
+  const totalLp = months.reduce((s, m) => s + m.totalLangphi, 0);
+  let cumDu = 0;
+  months.forEach(m => cumDu += m.ketDu);
+  const rate = totalThu > 0 ? ((cumDu / totalThu) * 100).toFixed(1) : '0';
+
+  document.getElementById('stat-thu').textContent = fmtVNDShort(totalThu);
+  document.getElementById('stat-thu-sub').textContent = `${months.length} tháng`;
+  document.getElementById('stat-chi').textContent = fmtVNDShort(totalChi);
+  document.getElementById('stat-chi-sub').textContent = totalLp > 0 ? `Lãng phí: ${fmtVNDShort(totalLp)}` : 'Không có lãng phí';
+  document.getElementById('stat-du').textContent = fmtVNDShort(cumDu);
+  document.getElementById('stat-du-sub').textContent = cumDu >= 0 ? 'Dương — đang tiết kiệm tốt' : 'Âm — chi nhiều hơn thu';
+  document.getElementById('stat-rate').textContent = rate + '%';
+}
+
+// ========== MAIN RENDER ==========
+function render(md, filename) {
+  const months = parseMarkdown(md);
+  if (months.length === 0) { showError('Không tìm thấy dữ liệu tháng. Kiểm tra định dạng file.'); return; }
+
+  document.getElementById('load-section').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+
+  setTimeout(() => {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    if (filename) document.getElementById('dash-title').textContent = '📊 ' + filename;
+    renderStats(months);
+    buildCharts(months);
+    renderMonths(months);
+  }, 300);
+}
+
+// ========== LOAD HANDLERS ==========
+function handleFileInput(input) {
+  const file = input.files[0];
+  if (!file) return;
+  hideError();
+  const reader = new FileReader();
+  reader.onload = e => render(e.target.result, file.name);
+  reader.onerror = () => showError('Không thể đọc file.');
+  reader.readAsText(file, 'UTF-8');
+}
+
+function toRawURL(url) {
+  // github.com/user/repo/blob/branch/path/file.md
+  //   → raw.githubusercontent.com/user/repo/branch/path/file.md
+  let m = url.match(/^https?:\/\/github\.com\/([^/]+\/[^/]+)\/blob\/(.+)$/);
+  if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2];
+
+  // github.dev/user/repo/blob/branch/path/file.md  (same transform)
+  m = url.match(/^https?:\/\/github\.dev\/([^/]+\/[^/]+)\/blob\/(.+)$/);
+  if (m) return 'https://raw.githubusercontent.com/' + m[1] + '

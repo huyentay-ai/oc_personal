@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  so-thu-chi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: so-thu-chi:latest
+    container_name: so-thu-chi
+    restart: unless-stopped
+    ports:
+      - "80:80"       # Đổi "8080:80" nếu port 80 đã bị dùng
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # --- Uncomment block dưới nếu dùng HTTPS với Certbot ---
+  # nginx-proxy:
+  #   image: nginxproxy/nginx-proxy:alpine
+  #   ports:
+  #     - "443:443"
+  #   volumes:
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
