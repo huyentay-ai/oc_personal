@@ -309,7 +309,7 @@
 
     <div id="tab-url" class="tab-panel">
       <div class="url-row">
-        <input type="text" id="url-input" value="https://github.com/huyentay-ai/oc_personal/blob/master/memory/notes/so_thu_chi.md" placeholder="https://github.com/user/repo/blob/master/so_thu_chi.md" />
+        <input type="text" id="url-input" value="https://raw.githubusercontent.com/huyentay-ai/oc_personal/master/memory/notes/so_thu_chi.md" placeholder="https://github.com/user/repo/blob/master/so_thu_chi.md" />
         <button class="btn-primary" onclick="loadFromURL()">Tải về</button>
       </div>
       <p class="load-hint">⚠️ URL phải cho phép CORS hoặc là raw file (GitHub raw, Gist, v.v.)</p>
@@ -791,4 +791,4 @@ function toRawURL(url) {
 
   // github.dev/user/repo/blob/branch/path/file.md  (same transform)
   m = url.match(/^https?:\/\/github\.dev\/([^/]+\/[^/]+)\/blob\/(.+)$/);
-  if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2];
+  if (m) return 'https://raw.githubusercontent.com/' + m[1] + '
