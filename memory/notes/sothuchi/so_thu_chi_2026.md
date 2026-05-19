@@ -1,6 +1,6 @@
 # Sổ thu chi 2026
 
-**Tổng kết dư (tất cả các tháng): 30.759.996đ**
+**Tổng kết dư (tất cả các tháng): -27.005.667đ**
 
 ---
 
@@ -95,8 +95,9 @@
 - 14/04 - Vợ chuyển: +5.000.000đ
 - 24/04 - Tiền chi ngày giỗ tổ: +5.000.000đ
 - 24/04 - Thưởng chiến sĩ thi đua cơ sở 2025: +2.340.000đ
+- 29/04 - ITC chi tiền ngày 30/04-01/05: +5.000.000đ
 
-**Tổng thu 2026-04: 21.814.760đ**
+**Tổng thu 2026-04: 26.814.760đ**
 
 ### Chi
 - Chuyển anh Linh đầu tư CPU game AU/DB game Audition lần 2: -8.800.000đ
@@ -107,8 +108,10 @@
 - 14/04 - Tiền khám bệnh ĐH Y (3 triệu chụp cộng hưởng từ): -4.926.000đ
 - 15/04 - Chi phí khám bệnh nội soi ĐH Y: -2.650.000đ
 - 18/04 - Mua Claude Pro: -500.000đ
+- 27/04 - Phúng viếng đám tang VKM: -500.000đ
+- Chi tiêu sinh hoạt tháng 4: -16.900.000đ
 
-**Tổng chi 2026-04: 93.129.000đ**
+**Tổng chi 2026-04: 110.529.000đ**
 
 ### Lãng phí
 - (chưa có)
@@ -116,4 +119,27 @@
 **Tổng lãng phí 2026-04: 0đ**
 
 ### Kết dư
-**Kết dư 2026-04: -71.314.240đ**
+**Kết dư 2026-04: -83.714.240đ**
+
+## 2026-05
+
+### Thu
+- 05/05 - Tiền hỗ trợ ăn trưa: +1.000.000đ
+- Tiền lương: +31.634.337đ
+- ITC chi tiền (GS1 vượt kế hoạch, GameVerse 2026): +3.000.000đ
+
+**Tổng thu 2026-05: 35.634.337đ**
+
+### Chi
+- Chuyển vợ tiền đất: -60.000.000đ
+- Thanh toán bảo hiểm nhân thọ: -21.000.000đ
+
+**Tổng chi 2026-05: 81.000.000đ**
+
+### Lãng phí
+- (chưa có)
+
+**Tổng lãng phí 2026-05: 0đ**
+
+### Kết dư
+**Kết dư 2026-05: -45.365.663đ**

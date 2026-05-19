@@ -1,10 +1,10 @@
 {
   "summary": {
-    "overallBalance": 30759996,
-    "totalIncome": 326103996,
-    "totalExpense": 295345000,
+    "overallBalance": -27005667,
+    "totalIncome": 366738333,
+    "totalExpense": 393745000,
     "totalWaste": 0,
-    "latestMonth": "2026-04"
+    "latestMonth": "2026-05"
   },
   "months": [
     {
@@ -181,6 +181,10 @@
         {
           "label": "24/04 - Thưởng chiến sĩ thi đua cơ sở 2025",
           "amount": 2340000
+        },
+        {
+          "label": "29/04 - ITC chi tiền ngày 30/04-01/05",
+          "amount": 5000000
         }
       ],
       "expenseItems": [
@@ -215,13 +219,53 @@
         {
           "label": "18/04 - Mua Claude Pro",
           "amount": -500000
+        },
+        {
+          "label": "27/04 - Phúng viếng đám tang VKM",
+          "amount": -500000
+        },
+        {
+          "label": "Chi tiêu sinh hoạt tháng 4",
+          "amount": -16900000
         }
       ],
       "wasteItems": [],
-      "incomeTotal": 21814760,
-      "expenseTotal": 93129000,
+      "incomeTotal": 26814760,
+      "expenseTotal": 110529000,
       "wasteTotal": 0,
-      "balance": -71314240
+      "balance": -83714240
+    },
+    {
+      "month": "2026-05",
+      "incomeItems": [
+        {
+          "label": "05/05 - Tiền hỗ trợ ăn trưa",
+          "amount": 1000000
+        },
+        {
+          "label": "Tiền lương",
+          "amount": 31634337
+        },
+        {
+          "label": "ITC chi tiền (GS1 vượt kế hoạch, GameVerse 2026)",
+          "amount": 3000000
+        }
+      ],
+      "expenseItems": [
+        {
+          "label": "Chuyển vợ tiền đất",
+          "amount": -60000000
+        },
+        {
+          "label": "Thanh toán bảo hiểm nhân thọ",
+          "amount": -21000000
+        }
+      ],
+      "wasteItems": [],
+      "incomeTotal": 35634337,
+      "expenseTotal": 81000000,
+      "wasteTotal": 0,
+      "balance": -45365663
     }
   ]
 }
